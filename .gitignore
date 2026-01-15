@@ -1,0 +1,10 @@
+# Node
+node_modules/
+.next/
+out/
+*.log
+
+# Temp files
+temp_cookie*.txt
+Trial.html
+trial.txt

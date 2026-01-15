@@ -1,0 +1,36 @@
+name: Sync Watch Later
+on:
+  repository_dispatch:
+    types: [sync-watch-later]
+
+jobs:
+  process-videos:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push the JSON back to the repo
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python & yt-dlp
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yt-dlp
+
+      - name: Process Watch Later
+        env:
+          COOKIE_DATA: ${{ toJson(github.event.client_payload.cookies) }}
+        run: python process_playlists.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add videos.json
+          git commit -m "Update watch later list" || exit 0
+          git push
